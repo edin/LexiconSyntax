@@ -144,6 +144,49 @@ GRAMMAR);
         }
     }
 
+    public function testInitCommandCreatesCLikeExampleProject(): void
+    {
+        mkdir($this->projectDirectory, 0777, true);
+        $previousDirectory = getcwd();
+        self::assertIsString($previousDirectory);
+        chdir($this->projectDirectory);
+
+        try {
+            $output = new BufferedOutput();
+            $exitCode = ConsoleApplicationFactory::create()->run(['lsyn', 'init', 'c-like'], $output);
+
+            self::assertSame(0, $exitCode);
+            self::assertFileExists($this->projectDirectory . DIRECTORY_SEPARATOR . 'c-like.lxs');
+            self::assertFileExists($this->projectDirectory . DIRECTORY_SEPARATOR . 'c-like.lxs.json');
+            self::assertFileExists($this->projectDirectory . DIRECTORY_SEPARATOR . 'c-like.sample.c');
+            self::assertStringContainsString('token keyword Int', file_get_contents('c-like.lxs') ?: '');
+            self::assertStringContainsString('"output": "generated/c-like"', file_get_contents('c-like.lxs.json') ?: '');
+            self::assertStringContainsString('Created c-like.lxs', $output->stdout);
+        } finally {
+            chdir($previousDirectory);
+        }
+    }
+
+    public function testInitCommandRefusesToOverwriteCLikeExampleProjectFiles(): void
+    {
+        mkdir($this->projectDirectory, 0777, true);
+        file_put_contents($this->projectDirectory . DIRECTORY_SEPARATOR . 'c-like.lxs', 'already here');
+        $previousDirectory = getcwd();
+        self::assertIsString($previousDirectory);
+        chdir($this->projectDirectory);
+
+        try {
+            $output = new BufferedOutput();
+            $exitCode = ConsoleApplicationFactory::create()->run(['lsyn', 'init', 'c-like'], $output);
+
+            self::assertSame(1, $exitCode);
+            self::assertStringContainsString('already exists', $output->stderr);
+            self::assertSame('already here', file_get_contents('c-like.lxs'));
+        } finally {
+            chdir($previousDirectory);
+        }
+    }
+
     public function testInitCommandRefusesToOverwriteExistingFile(): void
     {
         $output = new BufferedOutput();

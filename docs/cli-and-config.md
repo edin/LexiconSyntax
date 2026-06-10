@@ -28,7 +28,17 @@ php bin/lsyn generate:ast examples/c-like.lxs generated/Ast
 php bin/lsyn generate:parser examples/c-like.lxs generated CLikeParser CLikeTokenType
 php bin/lsyn parse:c-like examples/c-like.sample.c examples/c-like
 php bin/lsyn init
+php bin/lsyn init c-like
 php bin/lsyn install-global
+```
+
+`init c-like` creates a ready-to-generate demo project in the current
+directory:
+
+```text
+c-like.lxs
+c-like.lxs.json
+c-like.sample.c
 ```
 
 ## Project Config

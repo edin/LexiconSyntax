@@ -45,6 +45,13 @@ php bin/lsyn generate examples/c-like
 php bin/lsyn parse:c-like
 ```
 
+To create a C-like demo project in an empty directory:
+
+```bash
+lsyn init c-like
+lsyn generate c-like
+```
+
 After the package is published, Composer can install it globally:
 
 ```bash
