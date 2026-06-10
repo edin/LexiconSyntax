@@ -130,7 +130,7 @@ Generated parsers can be inspected with Lexicon's `AstPrinter`.
 The C-like demo command uses colored AST output:
 
 ```bash
-php bin/lsyn parse examples/c-like
+php bin/lsyn parse
 ```
 
 ## Current Limitations

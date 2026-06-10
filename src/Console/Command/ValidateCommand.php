@@ -21,7 +21,7 @@ final readonly class ValidateCommand implements CommandInterface
 
     public function description(): string
     {
-        return 'Validate a grammar file.';
+        return 'Validate a grammar file or the current project config source.';
     }
 
     public function execute(Input $input, Output $output): int

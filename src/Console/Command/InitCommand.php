@@ -50,7 +50,7 @@ final readonly class InitCommand implements CommandInterface
     {
         $files = [
             'c-like.lxs' => self::cLikeGrammar(),
-            'c-like.lxs.json' => self::cLikeConfig(),
+            'lexicon-syntax.json' => self::cLikeConfig(),
             'c-like.sample.c' => self::cLikeSample(),
         ];
 

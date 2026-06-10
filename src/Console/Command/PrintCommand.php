@@ -20,7 +20,7 @@ final readonly class PrintCommand implements CommandInterface
 
     public function description(): string
     {
-        return 'Pretty-print a grammar file.';
+        return 'Pretty-print a grammar file or the current project config source.';
     }
 
     public function execute(Input $input, Output $output): int

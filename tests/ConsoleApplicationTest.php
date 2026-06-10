@@ -131,12 +131,43 @@ GRAMMAR);
 
             self::assertSame(0, $exitCode);
             self::assertFileExists($this->projectDirectory . DIRECTORY_SEPARATOR . 'c-like.lxs');
-            self::assertFileExists($this->projectDirectory . DIRECTORY_SEPARATOR . 'c-like.lxs.json');
+            self::assertFileExists($this->projectDirectory . DIRECTORY_SEPARATOR . 'lexicon-syntax.json');
             self::assertFileExists($this->projectDirectory . DIRECTORY_SEPARATOR . 'c-like.sample.c');
             self::assertStringContainsString('token keyword Int', file_get_contents('c-like.lxs') ?: '');
-            self::assertStringContainsString('"output": "generated/c-like"', file_get_contents('c-like.lxs.json') ?: '');
-            self::assertStringContainsString('"sample": "c-like.sample.c"', file_get_contents('c-like.lxs.json') ?: '');
+            self::assertStringContainsString('"output": "generated/c-like"', file_get_contents('lexicon-syntax.json') ?: '');
+            self::assertStringContainsString('"sample": "c-like.sample.c"', file_get_contents('lexicon-syntax.json') ?: '');
             self::assertStringContainsString('Created c-like.lxs', $output->stdout);
+        } finally {
+            chdir($previousDirectory);
+        }
+    }
+
+    public function testProjectCommandsUseDefaultConfigFromCurrentDirectory(): void
+    {
+        mkdir($this->projectDirectory, 0777, true);
+        $previousDirectory = getcwd();
+        self::assertIsString($previousDirectory);
+        chdir($this->projectDirectory);
+
+        try {
+            $initOutput = new BufferedOutput();
+            self::assertSame(0, ConsoleApplicationFactory::create()->run(['lsyn', 'init', 'c-like'], $initOutput));
+
+            $validateOutput = new BufferedOutput();
+            self::assertSame(0, ConsoleApplicationFactory::create()->run(['lsyn', 'validate'], $validateOutput));
+            self::assertSame('OK' . PHP_EOL, $validateOutput->stdout);
+
+            $printOutput = new BufferedOutput();
+            self::assertSame(0, ConsoleApplicationFactory::create()->run(['lsyn', 'print'], $printOutput));
+            self::assertStringContainsString('token keyword Int ::= "int";', $printOutput->stdout);
+
+            $astOutput = new BufferedOutput();
+            self::assertSame(0, ConsoleApplicationFactory::create()->run(['lsyn', 'ast'], $astOutput));
+            self::assertStringContainsString('GrammarDocumentNode', $astOutput->stdout);
+
+            $generateOutput = new BufferedOutput();
+            self::assertSame(0, ConsoleApplicationFactory::create()->run(['lsyn', 'generate'], $generateOutput));
+            self::assertFileExists($this->projectDirectory . DIRECTORY_SEPARATOR . 'generated' . DIRECTORY_SEPARATOR . 'c-like' . DIRECTORY_SEPARATOR . 'CLikeParser.php');
         } finally {
             chdir($previousDirectory);
         }

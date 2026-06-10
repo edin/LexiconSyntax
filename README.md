@@ -39,19 +39,16 @@ foreach ($result->diagnostics as $diagnostic) {
 
 The package exposes the `lsyn` executable through Composer:
 
-```bash
-php bin/lsyn validate examples/c-like.lxs
-php bin/lsyn generate examples/c-like
-php bin/lsyn parse examples/c-like
-```
-
 To create a C-like demo project in an empty directory:
 
 ```bash
 lsyn init c-like
-lsyn generate c-like
-lsyn parse c-like
+lsyn validate
+lsyn generate
+lsyn parse
 ```
+
+Those commands read `lexicon-syntax.json` from the current project folder.
 
 After the package is published, Composer can install it globally:
 

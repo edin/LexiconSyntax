@@ -7,6 +7,8 @@ namespace LexiconSyntax\Console\Command;
 use LexiconSyntax\Console\Input;
 use LexiconSyntax\Console\Output;
 use LexiconSyntax\GrammarLoader;
+use LexiconSyntax\ProjectConfig;
+use RuntimeException;
 
 trait LoadsGrammarFiles
 {
@@ -14,7 +16,14 @@ trait LoadsGrammarFiles
     {
         $path = $input->argument(0);
         if ($path === null) {
-            $output->error('Missing grammar file path.');
+            try {
+                return ProjectConfig::loadFor(null)->source;
+            } catch (RuntimeException $exception) {
+                $output->error(sprintf(
+                    'Missing grammar file path and project config could not be loaded: %s',
+                    $exception->getMessage()
+                ));
+            }
 
             return null;
         }

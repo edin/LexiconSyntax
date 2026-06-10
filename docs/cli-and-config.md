@@ -19,15 +19,14 @@ lsyn help
 Current commands include:
 
 ```bash
-php bin/lsyn validate examples/c-like.lxs
-php bin/lsyn print examples/c-like.lxs
-php bin/lsyn ast examples/c-like.lxs
-php bin/lsyn generate examples/c-like
+php bin/lsyn validate
+php bin/lsyn print
+php bin/lsyn ast
+php bin/lsyn generate
+php bin/lsyn parse
 php bin/lsyn generate:tokens examples/c-like.lxs generated CLikeTokenType
 php bin/lsyn generate:ast examples/c-like.lxs generated/Ast
 php bin/lsyn generate:parser examples/c-like.lxs generated CLikeParser CLikeTokenType
-php bin/lsyn parse examples/c-like
-php bin/lsyn parse examples/c-like examples/c-like.sample.c
 php bin/lsyn init
 php bin/lsyn init c-like
 ```
@@ -37,7 +36,7 @@ directory:
 
 ```text
 c-like.lxs
-c-like.lxs.json
+lexicon-syntax.json
 c-like.sample.c
 ```
 
@@ -60,7 +59,8 @@ Paths inside config are relative to the config file.
 ## Config Resolution
 
 `generate` and `parse` accept a project config, a grammar path, or a grammar
-basename.
+basename. `validate`, `print`, and `ast` accept a grammar path, but with no
+argument they also read `source` from `lexicon-syntax.json`.
 
 Resolution rules:
 
@@ -75,6 +75,10 @@ Examples:
 
 ```bash
 php bin/lsyn generate
+php bin/lsyn validate
+php bin/lsyn print
+php bin/lsyn ast
+php bin/lsyn parse
 php bin/lsyn generate lexicon-syntax.json
 php bin/lsyn generate examples/c-like.lxs
 php bin/lsyn generate examples/c-like

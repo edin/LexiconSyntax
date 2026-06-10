@@ -20,7 +20,7 @@ final readonly class AstCommand implements CommandInterface
 
     public function description(): string
     {
-        return 'Print the parsed AST shape.';
+        return 'Print the parsed AST shape for a grammar file or current project.';
     }
 
     public function execute(Input $input, Output $output): int
