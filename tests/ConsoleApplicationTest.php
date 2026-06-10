@@ -11,7 +11,6 @@ use PHPUnit\Framework\TestCase;
 final class ConsoleApplicationTest extends TestCase
 {
     private string $grammarFile;
-    private string $installDirectory;
     private string $generateDirectory;
     private string $astDirectory;
     private string $projectDirectory;
@@ -20,7 +19,6 @@ final class ConsoleApplicationTest extends TestCase
     {
         $this->grammarFile = tempnam(sys_get_temp_dir(), 'lxs_');
         self::assertIsString($this->grammarFile);
-        $this->installDirectory = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'lxs_bin_' . bin2hex(random_bytes(4));
         $this->generateDirectory = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'lxs_gen_' . bin2hex(random_bytes(4));
         $this->astDirectory = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'lxs_ast_' . bin2hex(random_bytes(4));
         $this->projectDirectory = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'lxs_project_' . bin2hex(random_bytes(4));
@@ -35,14 +33,6 @@ GRAMMAR);
     {
         if (is_file($this->grammarFile)) {
             unlink($this->grammarFile);
-        }
-
-        if (is_dir($this->installDirectory)) {
-            foreach (glob($this->installDirectory . DIRECTORY_SEPARATOR . '*') ?: [] as $file) {
-                unlink($file);
-            }
-
-            rmdir($this->installDirectory);
         }
 
         if (is_dir($this->generateDirectory)) {
@@ -67,12 +57,13 @@ GRAMMAR);
         self::assertStringContainsString('validate', $output->stdout);
         self::assertStringContainsString('print', $output->stdout);
         self::assertStringContainsString('ast', $output->stdout);
-        self::assertStringContainsString('install-global', $output->stdout);
         self::assertStringContainsString('generate', $output->stdout);
         self::assertStringContainsString('generate:tokens', $output->stdout);
         self::assertStringContainsString('generate:ast', $output->stdout);
         self::assertStringContainsString('generate:parser', $output->stdout);
-        self::assertStringContainsString('parse:c-like', $output->stdout);
+        self::assertStringContainsString('parse', $output->stdout);
+        self::assertStringNotContainsString('install-global', $output->stdout);
+        self::assertStringNotContainsString('parse:c-like', $output->stdout);
     }
 
     public function testValidateCommandReportsOk(): void
@@ -106,23 +97,6 @@ GRAMMAR);
 
         self::assertSame(1, $exitCode);
         self::assertStringContainsString("Undefined reference 'Missing'.", $output->stdout);
-    }
-
-    public function testInstallGlobalCommandCreatesLauncher(): void
-    {
-        $output = new BufferedOutput();
-        $exitCode = ConsoleApplicationFactory::create()->run(['lsyn', 'install-global', $this->installDirectory], $output);
-
-        self::assertSame(0, $exitCode);
-        self::assertDirectoryExists($this->installDirectory);
-
-        $launcher = PHP_OS_FAMILY === 'Windows'
-            ? $this->installDirectory . DIRECTORY_SEPARATOR . 'lsyn.bat'
-            : $this->installDirectory . DIRECTORY_SEPARATOR . 'lsyn';
-
-        self::assertFileExists($launcher);
-        self::assertStringContainsString('lsyn', file_get_contents($launcher) ?: '');
-        self::assertStringContainsString('Installed', $output->stdout);
     }
 
     public function testInitCommandCreatesStarterGrammar(): void
@@ -161,6 +135,7 @@ GRAMMAR);
             self::assertFileExists($this->projectDirectory . DIRECTORY_SEPARATOR . 'c-like.sample.c');
             self::assertStringContainsString('token keyword Int', file_get_contents('c-like.lxs') ?: '');
             self::assertStringContainsString('"output": "generated/c-like"', file_get_contents('c-like.lxs.json') ?: '');
+            self::assertStringContainsString('"sample": "c-like.sample.c"', file_get_contents('c-like.lxs.json') ?: '');
             self::assertStringContainsString('Created c-like.lxs', $output->stdout);
         } finally {
             chdir($previousDirectory);
@@ -491,13 +466,12 @@ GRAMMAR);
         self::assertFileExists($outputDirectory . DIRECTORY_SEPARATOR . 'Ast' . DIRECTORY_SEPARATOR . 'CallExpressionNode.php');
     }
 
-    public function testParseCLikeCommandParsesSampleFile(): void
+    public function testParseCommandParsesConfiguredSampleFile(): void
     {
         $output = new BufferedOutput();
         $exitCode = ConsoleApplicationFactory::create()->run([
             'lsyn',
-            'parse:c-like',
-            'examples/c-like.sample.c',
+            'parse',
             'examples/c-like',
         ], $output);
 
@@ -514,6 +488,20 @@ GRAMMAR);
         self::assertStringContainsString('name: Identifier "right"', $plainOutput);
         self::assertStringNotContainsString('parameters: true', $plainOutput);
         self::assertStringNotContainsString('value: true', $plainOutput);
+    }
+
+    public function testParseCommandAcceptsSourceFileOverride(): void
+    {
+        $output = new BufferedOutput();
+        $exitCode = ConsoleApplicationFactory::create()->run([
+            'lsyn',
+            'parse',
+            'examples/c-like',
+            'examples/c-like.sample.c',
+        ], $output);
+
+        self::assertSame(0, $exitCode);
+        self::assertStringContainsString('ProgramNode', self::withoutAnsi($output->stdout));
     }
 
     private static function removeDirectory(string $directory): void

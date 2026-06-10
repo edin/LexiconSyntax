@@ -42,7 +42,7 @@ The package exposes the `lsyn` executable through Composer:
 ```bash
 php bin/lsyn validate examples/c-like.lxs
 php bin/lsyn generate examples/c-like
-php bin/lsyn parse:c-like
+php bin/lsyn parse examples/c-like
 ```
 
 To create a C-like demo project in an empty directory:
@@ -50,6 +50,7 @@ To create a C-like demo project in an empty directory:
 ```bash
 lsyn init c-like
 lsyn generate c-like
+lsyn parse c-like
 ```
 
 After the package is published, Composer can install it globally:
@@ -71,10 +72,4 @@ Windows this is commonly:
 
 ```text
 %APPDATA%\Composer\vendor\bin
-```
-
-You can also create a launcher directly:
-
-```bash
-php bin/lsyn install-global
 ```

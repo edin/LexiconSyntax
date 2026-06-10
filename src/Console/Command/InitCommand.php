@@ -104,6 +104,7 @@ GRAMMAR . PHP_EOL;
             'output' => 'generated/c-like',
             'tokenEnum' => 'CLikeTokenType',
             'parser' => 'CLikeParser',
+            'sample' => 'c-like.sample.c',
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL;
     }
 

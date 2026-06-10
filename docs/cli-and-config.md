@@ -26,10 +26,10 @@ php bin/lsyn generate examples/c-like
 php bin/lsyn generate:tokens examples/c-like.lxs generated CLikeTokenType
 php bin/lsyn generate:ast examples/c-like.lxs generated/Ast
 php bin/lsyn generate:parser examples/c-like.lxs generated CLikeParser CLikeTokenType
-php bin/lsyn parse:c-like examples/c-like.sample.c examples/c-like
+php bin/lsyn parse examples/c-like
+php bin/lsyn parse examples/c-like examples/c-like.sample.c
 php bin/lsyn init
 php bin/lsyn init c-like
-php bin/lsyn install-global
 ```
 
 `init c-like` creates a ready-to-generate demo project in the current
@@ -50,7 +50,8 @@ Generation uses JSON config.
   "source": "c-like.lxs",
   "output": "generated/c-like",
   "tokenEnum": "CLikeTokenType",
-  "parser": "CLikeParser"
+  "parser": "CLikeParser",
+  "sample": "c-like.sample.c"
 }
 ```
 
@@ -58,7 +59,8 @@ Paths inside config are relative to the config file.
 
 ## Config Resolution
 
-`generate` accepts a project config, a grammar path, or a grammar basename.
+`generate` and `parse` accept a project config, a grammar path, or a grammar
+basename.
 
 Resolution rules:
 
@@ -110,10 +112,4 @@ On Windows, Composer's global bin directory is commonly:
 
 ```text
 %APPDATA%\Composer\vendor\bin
-```
-
-The project also includes a direct launcher command:
-
-```bash
-php bin/lsyn install-global
 ```

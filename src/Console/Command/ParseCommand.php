@@ -22,23 +22,28 @@ use LexiconSyntax\ProjectConfig;
 use LexiconSyntax\Validation\GrammarValidator;
 use RuntimeException;
 
-final readonly class ParseCLikeCommand implements CommandInterface
+final readonly class ParseCommand implements CommandInterface
 {
     public function name(): string
     {
-        return 'parse:c-like';
+        return 'parse';
     }
 
     public function description(): string
     {
-        return 'Parse the C-like sample with generated code.';
+        return 'Generate and run a parser using project config.';
     }
 
     public function execute(Input $input, Output $output): int
     {
-        $sourcePath = $input->argument(0) ?? 'examples/c-like.sample.c';
+        $config = ProjectConfig::loadFor($input->argument(0));
+        $sourcePath = $input->argument(1) ?? $config->sample;
+        if ($sourcePath === null) {
+            $output->error('No source file was provided and config has no sample property.');
 
-        $config = ProjectConfig::loadFor($input->argument(1) ?? 'examples/c-like');
+            return 1;
+        }
+
         $this->generate($config);
         $this->requireGeneratedFiles($config->output);
 
@@ -52,7 +57,7 @@ final readonly class ParseCLikeCommand implements CommandInterface
         $tokenType = 'Generated\\' . $config->tokenEnum;
         $parserType = 'Generated\\' . $config->parser;
         if (!enum_exists($tokenType) || !class_exists($parserType)) {
-            $output->error('Generated C-like parser classes could not be loaded.');
+            $output->error('Generated parser classes could not be loaded.');
 
             return 1;
         }

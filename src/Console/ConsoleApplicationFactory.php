@@ -10,8 +10,7 @@ use LexiconSyntax\Console\Command\GenerateAstCommand;
 use LexiconSyntax\Console\Command\GenerateParserCommand;
 use LexiconSyntax\Console\Command\GenerateTokensCommand;
 use LexiconSyntax\Console\Command\InitCommand;
-use LexiconSyntax\Console\Command\InstallGlobalCommand;
-use LexiconSyntax\Console\Command\ParseCLikeCommand;
+use LexiconSyntax\Console\Command\ParseCommand;
 use LexiconSyntax\Console\Command\PrintCommand;
 use LexiconSyntax\Console\Command\ValidateCommand;
 
@@ -28,8 +27,7 @@ final readonly class ConsoleApplicationFactory
             new GenerateAstCommand(),
             new GenerateParserCommand(),
             new GenerateTokensCommand(),
-            new ParseCLikeCommand(),
-            new InstallGlobalCommand(),
+            new ParseCommand(),
         ]);
     }
 }

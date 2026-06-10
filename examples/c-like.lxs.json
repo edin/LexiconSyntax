@@ -2,5 +2,6 @@
   "source": "c-like.lxs",
   "output": "../generated/c-like",
   "tokenEnum": "CLikeTokenType",
-  "parser": "CLikeParser"
+  "parser": "CLikeParser",
+  "sample": "c-like.sample.c"
 }

@@ -12,7 +12,8 @@ final readonly class ProjectConfig
         public string $source,
         public string $output,
         public string $tokenEnum = 'GeneratedTokenType',
-        public string $parser = 'GeneratedParser'
+        public string $parser = 'GeneratedParser',
+        public ?string $sample = null
     ) {
     }
 
@@ -45,6 +46,9 @@ final readonly class ProjectConfig
         $parser = isset($data['parser'])
             ? self::stringValue($data, 'parser', $path)
             : 'GeneratedParser';
+        $sample = isset($data['sample'])
+            ? self::stringValue($data, 'sample', $path)
+            : null;
 
         $baseDirectory = dirname($path);
 
@@ -52,7 +56,8 @@ final readonly class ProjectConfig
             self::resolvePath($baseDirectory, $sourcePath),
             self::resolvePath($baseDirectory, $outputPath),
             $tokenEnum,
-            $parser
+            $parser,
+            $sample === null ? null : self::resolvePath($baseDirectory, $sample)
         );
     }
 
