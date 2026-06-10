@@ -1,0 +1,35 @@
+{
+  "name": "lexicon-syntax-vscode",
+  "displayName": "Lexicon Syntax",
+  "description": "Syntax highlighting for Lexicon Syntax grammar files.",
+  "version": "0.1.0",
+  "publisher": "edin",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "lexicon-syntax",
+        "aliases": [
+          "Lexicon Syntax",
+          "lexicon-syntax"
+        ],
+        "extensions": [
+          ".lxs"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "lexicon-syntax",
+        "scopeName": "source.lexicon-syntax",
+        "path": "./syntaxes/lexicon-syntax.tmLanguage.json"
+      }
+    ]
+  }
+}

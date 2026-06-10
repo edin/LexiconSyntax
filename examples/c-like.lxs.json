@@ -1,0 +1,6 @@
+{
+  "source": "c-like.lxs",
+  "output": "../generated/c-like",
+  "tokenEnum": "CLikeTokenType",
+  "parser": "CLikeParser"
+}

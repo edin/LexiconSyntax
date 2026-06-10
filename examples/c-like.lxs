@@ -1,0 +1,192 @@
+// Small C-like grammar demo for Lexicon Syntax.
+// It focuses on declarations, structs, blocks, statements, calls, and expressions.
+
+token keyword Int ::= "int";
+token keyword Float ::= "float";
+token keyword Void ::= "void";
+token keyword Struct ::= "struct";
+token keyword Return ::= "return";
+token keyword If ::= "if";
+token keyword Else ::= "else";
+token keyword While ::= "while";
+token keyword For ::= "for";
+token keyword Break ::= "break";
+token keyword Continue ::= "continue";
+
+token Identifier ::= <IdentifierMatcher>;
+token Number ::= <NumberMatcher>;
+token String ::= <StringMatcher>;
+
+token trivia Whitespace ::= <WhitespaceMatcher>;
+token trivia LineComment ::= <LineCommentMatcher>;
+token trivia BlockComment ::= <BlockCommentMatcher>;
+
+token symbol OpenParen ::= "(";
+token symbol CloseParen ::= ")";
+token symbol OpenBrace ::= "{";
+token symbol CloseBrace ::= "}";
+token symbol OpenBracket ::= "[";
+token symbol CloseBracket ::= "]";
+token symbol Comma ::= ",";
+token symbol Semicolon ::= ";";
+token symbol Dot ::= ".";
+token symbol Arrow ::= "->";
+token symbol Assign ::= "=";
+token symbol Plus ::= "+";
+token symbol Minus ::= "-";
+token symbol Star ::= "*";
+token symbol Slash ::= "/";
+token symbol Percent ::= "%";
+token symbol Bang ::= "!";
+token symbol Ampersand ::= "&";
+token symbol AndAnd ::= "&&";
+token symbol OrOr ::= "||";
+token symbol EqualEqual ::= "==";
+token symbol BangEqual ::= "!=";
+token symbol Less ::= "<";
+token symbol LessEqual ::= "<=";
+token symbol Greater ::= ">";
+token symbol GreaterEqual ::= ">=";
+token eof EndOfFile;
+token unknown Unknown;
+
+type UnaryOperator = Bang | Minus | Star | Ampersand;
+type AdditiveOperator = Plus | Minus;
+type MultiplicativeOperator = Star | Slash | Percent;
+type EqualityOperator = EqualEqual | BangEqual;
+type RelationalOperator = Less | LessEqual | Greater | GreaterEqual;
+
+node Type;
+node Statement;
+node Expression;
+node Declaration;
+
+node TypeName : Type(name: token);
+node StructTypeName : Type(name: token);
+
+node Program(items: Declaration[]);
+node StructDeclaration : Declaration(name: token, fields: FieldDeclaration[]);
+node FunctionDeclaration : Declaration(returnType: Type, name: token, parameters: ParameterList, body: Block);
+node FieldDeclaration(valueType: Type, name: token);
+node Parameter(valueType: Type, name: token);
+node VariableDeclaration : Declaration(valueType: Type, name: token, value: Expression);
+
+node Block : Statement(statements: Statement[]);
+node ReturnStatement : Statement(value: Expression);
+node IfStatement : Statement(condition: Expression, thenBranch: Statement, elseBranch: Statement);
+node WhileStatement : Statement(condition: Expression, body: Statement);
+node ForStatement : Statement(initializer: ForInitializer, condition: Expression, step: Expression, body: Statement);
+node BreakStatement : Statement();
+node ContinueStatement : Statement();
+node ExpressionStatement : Statement(expression: Expression);
+
+node AssignmentExpression : Expression(target: Expression, value: Expression);
+node BinaryExpression : Expression(left: Expression, op: token, right: Expression);
+node UnaryExpression : Expression(op: token, expression: Expression);
+node CallExpression : Expression(callee: Expression, arguments: ArgumentList);
+node MemberExpression : Expression(object: Expression, member: token);
+node IndexExpression : Expression(object: Expression, index: Expression);
+node IdentifierExpression : Expression(name: token);
+node NumberLiteral : Expression(value: token);
+node StringLiteral : Expression(value: token);
+node GroupedExpressionNode : Expression(expression: Expression);
+
+#[start]
+rule Program ::= items: TopLevelDeclaration* EndOfFile => Program(items);
+
+rule TopLevelDeclaration ::= StructDeclaration | FunctionDeclaration | VariableDeclaration;
+
+rule StructDeclaration ::= Struct name: Identifier OpenBrace fields: FieldDeclaration* CloseBrace Semicolon
+    => StructDeclaration(name, fields);
+
+rule FieldDeclaration ::= valueType: Type name: Identifier Semicolon
+    => FieldDeclaration(valueType, name);
+
+rule FunctionDeclaration ::= returnType: Type name: Identifier OpenParen parameters: ParameterList? CloseParen body: Block
+    => FunctionDeclaration(returnType, name, parameters, body);
+
+rule ParameterList ::= Parameter (Comma Parameter)*;
+
+rule Parameter ::= valueType: Type name: Identifier
+    => Parameter(valueType, name);
+
+rule VariableDeclaration ::= valueType: Type name: Identifier (Assign value: Expression)? Semicolon
+    => VariableDeclaration(valueType, name, value);
+
+rule Type ::= name: Int => TypeName(name)
+    | name: Float => TypeName(name)
+    | name: Void => TypeName(name)
+    | Struct name: Identifier => StructTypeName(name)
+    | name: Identifier => TypeName(name);
+
+rule Block ::= OpenBrace statements: Statement* CloseBrace
+    => Block(statements);
+
+rule Statement ::= VariableDeclaration | ReturnStatement | IfStatement | WhileStatement | ForStatement | BreakStatement | ContinueStatement | ExpressionStatement | Block;
+
+rule ReturnStatement ::= Return value: Expression? Semicolon
+    => ReturnStatement(value);
+
+rule IfStatement ::= If OpenParen condition: Expression CloseParen thenBranch: Statement (Else elseBranch: Statement)?
+    => IfStatement(condition, thenBranch, elseBranch);
+
+rule WhileStatement ::= While OpenParen condition: Expression CloseParen body: Statement
+    => WhileStatement(condition, body);
+
+rule ForStatement ::= For OpenParen initializer: ForInitializer? Semicolon condition: Expression? Semicolon step: Expression? CloseParen body: Statement
+    => ForStatement(initializer, condition, step, body);
+
+rule ForInitializer ::= VariableDeclaration | Expression;
+
+rule BreakStatement ::= Break Semicolon
+    => BreakStatement();
+
+rule ContinueStatement ::= Continue Semicolon
+    => ContinueStatement();
+
+rule ExpressionStatement ::= expression: Expression? Semicolon
+    => ExpressionStatement(expression);
+
+rule Expression ::= Assignment;
+
+rule Assignment ::= target: Postfix Assign value: Assignment => AssignmentExpression(target, value)
+    | LogicalOr;
+
+rule LogicalOr ::= LogicalAnd (OrOr LogicalAnd)*;
+
+rule LogicalAnd ::= Equality (AndAnd Equality)*;
+
+rule Equality ::= Relational (EqualityOperator Relational)*;
+
+rule Relational ::= Additive (RelationalOperator Additive)*;
+
+rule Additive ::= Multiplicative (AdditiveOperator Multiplicative)*;
+
+rule Multiplicative ::= Unary (MultiplicativeOperator Unary)*;
+
+rule Unary ::= op: UnaryOperator expression: Unary => UnaryExpression(op, expression)
+    | Postfix;
+
+rule Postfix ::= Primary PostfixSuffix*;
+
+rule PostfixSuffix ::= CallSuffix | IndexSuffix | MemberSuffix;
+
+rule CallSuffix ::= OpenParen ArgumentList? CloseParen;
+
+rule IndexSuffix ::= OpenBracket index: Expression CloseBracket;
+
+rule MemberSuffix ::= Dot Identifier | Arrow Identifier;
+
+rule Primary ::= value: Number => NumberLiteral(value)
+    | value: String => StringLiteral(value)
+    | name: Identifier => IdentifierExpression(name)
+    | CallExpression
+    | GroupedExpression;
+
+rule CallExpression ::= callee: Identifier OpenParen arguments: ArgumentList? CloseParen
+    => CallExpression(callee, arguments);
+
+rule ArgumentList ::= Expression (Comma Expression)*;
+
+rule GroupedExpression ::= OpenParen expression: Expression CloseParen
+    => GroupedExpressionNode(expression);
