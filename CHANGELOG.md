@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.1
+
+- Fixed the `lsyn` Composer bin entry so global installs use Composer's
+  generated autoload path.
+
 ## 0.1.0
 
 - Initial Lexicon Syntax grammar parser and validator.
