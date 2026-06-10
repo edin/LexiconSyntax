@@ -37,9 +37,21 @@ foreach ($result->diagnostics as $diagnostic) {
 
 ## CLI
 
-The package exposes the `lsyn` executable through Composer:
+Install the command globally with Composer:
 
-To create a C-like demo project in an empty directory:
+```bash
+composer global require edin/lexicon-syntax
+lsyn help
+```
+
+Make sure Composer's global `vendor/bin` directory is on `PATH`. On
+Windows this is commonly:
+
+```text
+%APPDATA%\Composer\vendor\bin
+```
+
+Create a C-like demo project in an empty directory:
 
 ```bash
 lsyn init c-like
@@ -50,23 +62,21 @@ lsyn parse
 
 Those commands read `lexicon-syntax.json` from the current project folder.
 
-After the package is published, Composer can install it globally:
+Useful inspection commands:
 
 ```bash
-composer global require edin/lexicon-syntax
-lsyn help
+lsyn print
+lsyn ast
+lsyn parse
 ```
+
+`lsyn print` pretty-prints the grammar, `lsyn ast` prints the grammar AST
+nodes, and `lsyn parse` generates the demo parser and prints the parsed C-like
+sample AST.
 
 During development from source, run the binary directly:
 
 ```bash
 composer install
 php bin/lsyn help
-```
-
-Make sure Composer's global `vendor/bin` directory is on `PATH`. On
-Windows this is commonly:
-
-```text
-%APPDATA%\Composer\vendor\bin
 ```
